@@ -1,0 +1,36 @@
+name: Deploy static content to Pages
+
+on:
+  push:
+    branches: ["main"] # You can change this to your default branch if it's not 'main' (e.g., 'master')
+  workflow_dispatch: # Allows you to run this workflow manually from the Actions tab
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: './' # This path specifies the directory containing your static files.
+                    # If your static files are in a subdirectory like 'docs' or 'build',
+                    # change this to './docs' or './build' accordingly.
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
